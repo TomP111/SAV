@@ -13,41 +13,57 @@ public class SAVApp {
         });
     }
 
-    private static void createAndShowGUI() {
-        // Créez la fenêtre principale de l'application
+    public static void createAndShowGUI() {
         JFrame frame = new JFrame("Application SAV");
         ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
         frame.setIconImage(img.getImage());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 200);
-        frame.setLayout(new FlowLayout());
-        
 
-        // Créez un bouton "Ajouter une réclamation"
+        JLabel title = new JLabel("Votre application SAV");
+
+        
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        
         JButton addButton = new JButton("Ajouter une réclamation");
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Redirigez vers la classe "Reclamation.java" pour ajouter une réclamation
+                
                 frame.dispose();
                 Reclamation.reclamer();
             }
         });
 
-        // Créez un bouton "Voir les réclamations"
+        
         JButton viewButton = new JButton("Voir les réclamations");
         viewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Redirigez vers la classe "Reclamation.java" pour voir les réclamations
+                
                 frame.dispose();
                 Reclamation.voirReclamations();
             }
         });
 
-        // Ajoutez les boutons à la fenêtre
-        frame.add(addButton);
-        frame.add(viewButton);
 
-        // Affichez la fenêtre
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        buttonPanel.add(title, gbc);
+        gbc.gridwidth = 1;
+        
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        buttonPanel.add(addButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        buttonPanel.add(viewButton, gbc);
+
+        frame.getContentPane().add(buttonPanel, BorderLayout.CENTER);
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
