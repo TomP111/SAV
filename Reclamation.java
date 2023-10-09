@@ -235,21 +235,23 @@ public class Reclamation {
             // étape 3: créer l'objet statement
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM problemes");
-            String columns[] = { "ID_Client", "Description", "Statut", "Modifier", "Supprimer" };
+            String columns[] = { "ID_Ticket","ID_Client", "Description", "Statut", "Modifier", "Supprimer" };
             DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
             tableModel.setRowCount(0);
             while (rs.next()) {
-                String id = rs.getString("ID_Client");
+                String id1 = rs.getString("ID_Ticket");
+                String id2 = rs.getString("ID_Client");
                 String description = rs.getString("Description");
                 String statut = rs.getString("Statut");
                 JButton editButton = new JButton("Modifier");
                 JButton deleteButton = new JButton("Supprimer");
-                tableModel.addRow(new Object[] { id, description, statut, editButton, deleteButton });
+                tableModel.addRow(new Object[] { id1, id2, description, statut, editButton, deleteButton });
             }
             JTable jt = new JTable(tableModel);
             jt.getColumnModel().getColumn(1).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumnModel().getColumn(2).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumnModel().getColumn(0).setCellEditor(new CustomCellEditor(new JCheckBox()));
+            jt.getColumnModel().getColumn(3).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumn("Modifier").setCellRenderer(new ButtonRenderer());
             jt.getColumn("Modifier").setCellEditor(
                 new ButtonEditor(new JCheckBox())

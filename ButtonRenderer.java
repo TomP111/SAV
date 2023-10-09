@@ -11,6 +11,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 class ButtonRenderer extends JButton implements TableCellRenderer {
 
@@ -26,6 +32,7 @@ class ButtonRenderer extends JButton implements TableCellRenderer {
     setText((value instanceof JButton) ? ((JButton) value).getText() : "");
     return this;
   }
+
   public ButtonRenderer() {
     setOpaque(true);
   }
@@ -41,6 +48,7 @@ class ButtonEditor extends DefaultCellEditor {
   private String label;
 
   private boolean isPushed;
+  private String idticket;
 
   public ButtonEditor(JCheckBox checkBox) {
     super(checkBox);
@@ -63,6 +71,7 @@ class ButtonEditor extends DefaultCellEditor {
       button.setBackground(table.getBackground());
     }
     label = ((value instanceof JButton) ? ((JButton) value).getText() : "");
+    idticket = table.getValueAt(row, 0).toString();
     button.setText(label);
 
     isPushed = true;
@@ -71,13 +80,39 @@ class ButtonEditor extends DefaultCellEditor {
 
   public Object getCellEditorValue() {
     if (isPushed) {
-      //
-      //
-      JOptionPane.showMessageDialog(button, label + ": Ouch!");
-      // System.out.println(label + ": Ouch!");
+      if (label == "Supprimer") {
+        int choix = JOptionPane.showConfirmDialog(
+            null,
+            "Voulez-vous continuer ?", // Message à afficher
+            "Confirmation", // Titre de la boîte de dialogue
+            JOptionPane.YES_NO_OPTION // Type de boutons (Oui/Non)
+        );
+
+        if (choix == JOptionPane.YES_OPTION) {
+          try {
+            // étape 1: charger la classe de driver
+            Class.forName("com.mysql.jdbc.Driver");
+
+            // étape 2: créer l'objet de connexion
+            Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3308/sav?characterEncoding=UTF-8&useConfigs=maxPerformance",
+                "root", "");
+
+            // étape 3: créer l'objet statement
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("DELETE FROM problemes WHERE ID_Ticket = " + idticket);
+            conn.close();
+          } catch (Exception d) {
+            System.out.println(d);
+          }
+        } else {
+        }
+      } else if(label == "Modifier"){
+      }
+
     }
     isPushed = false;
-    return new String(label);
+    return button;
   }
 
   public boolean stopCellEditing() {
@@ -92,7 +127,5 @@ class ButtonEditor extends DefaultCellEditor {
   public boolean isCellEditable(int row, int column) {
     return false;
   }
-
-
 
 }
