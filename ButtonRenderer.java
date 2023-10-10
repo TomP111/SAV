@@ -10,6 +10,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +18,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.swing.table.TableModel;
+import app.Reclamation.TableModelHolder;
 
 class ButtonRenderer extends JButton implements TableCellRenderer {
 
@@ -49,6 +52,7 @@ class ButtonEditor extends DefaultCellEditor {
 
   private boolean isPushed;
   private String idticket;
+  private int row2;
 
   public ButtonEditor(JCheckBox checkBox) {
     super(checkBox);
@@ -72,6 +76,8 @@ class ButtonEditor extends DefaultCellEditor {
     }
     label = ((value instanceof JButton) ? ((JButton) value).getText() : "");
     idticket = table.getValueAt(row, 0).toString();
+    row2 = row;
+
     button.setText(label);
 
     isPushed = true;
@@ -102,12 +108,14 @@ class ButtonEditor extends DefaultCellEditor {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM problemes WHERE ID_Ticket = " + idticket);
             conn.close();
+            DefaultTableModel model = TableModelHolder.tableModel2;
+            model.removeRow(row2);
           } catch (Exception d) {
             System.out.println(d);
           }
         } else {
         }
-      } else if(label == "Modifier"){
+      } else if (label == "Modifier") {
       }
 
     }

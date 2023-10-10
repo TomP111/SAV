@@ -48,7 +48,7 @@ public class Reclamation {
     public static void reclamer() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Application SAV");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setSize(400, 200);
             ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
             frame.setIconImage(img.getImage());
@@ -150,7 +150,6 @@ public class Reclamation {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     frame.dispose();
-                    SAVApp.createAndShowGUI();
                 }
             });
 
@@ -199,29 +198,34 @@ public class Reclamation {
         });
     }
 
+    public class TableModelHolder {
+        public static DefaultTableModel tableModel2;
+    }
+
     public static void voirReclamations() {
         class CustomCellEditor extends DefaultCellEditor {
             public CustomCellEditor(JCheckBox checkBox) {
                 super(checkBox);
             }
-    
+
             @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                if (column == 0 || column == 1 || column == 2) { // Remplacez "yourNonEditableColumnIndex" par l'indice de la colonne que vous ne souhaitez pas éditer.
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                    int column) {
+                if (column == 0 || column == 1 || column == 2) { // Remplacez "yourNonEditableColumnIndex" par l'indice
+                                                                 // de la colonne que vous ne souhaitez pas éditer.
                     return null; // Retourne null pour les cellules que vous ne souhaitez pas éditer.
                 } else {
-                 return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                    return super.getTableCellEditorComponent(table, value, isSelected, row, column);
                 }
             }
         }
         JFrame frame = new JFrame("Liste des réclamations");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(700, 500);
         frame.setLocationRelativeTo(null);
         ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
         frame.setIconImage(img.getImage());
         JPanel panel = new JPanel();
-        
 
         try {
             // étape 1: charger la classe de driver
@@ -235,7 +239,7 @@ public class Reclamation {
             // étape 3: créer l'objet statement
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM problemes");
-            String columns[] = { "ID_Ticket","ID_Client", "Description", "Statut", "Modifier", "Supprimer" };
+            String columns[] = { "ID_Ticket", "ID_Client", "Description", "Statut", "Modifier", "Supprimer" };
             DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
             tableModel.setRowCount(0);
             while (rs.next()) {
@@ -248,18 +252,17 @@ public class Reclamation {
                 tableModel.addRow(new Object[] { id1, id2, description, statut, editButton, deleteButton });
             }
             JTable jt = new JTable(tableModel);
+            TableModelHolder.tableModel2 = tableModel;
             jt.getColumnModel().getColumn(1).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumnModel().getColumn(2).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumnModel().getColumn(0).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumnModel().getColumn(3).setCellEditor(new CustomCellEditor(new JCheckBox()));
             jt.getColumn("Modifier").setCellRenderer(new ButtonRenderer());
             jt.getColumn("Modifier").setCellEditor(
-                new ButtonEditor(new JCheckBox())
-            );
+                    new ButtonEditor(new JCheckBox()));
             jt.getColumn("Supprimer").setCellRenderer(new ButtonRenderer());
             jt.getColumn("Supprimer").setCellEditor(
-                new ButtonEditor(new JCheckBox())
-            );
+                    new ButtonEditor(new JCheckBox()));
             JScrollPane scrollPane = new JScrollPane(jt); // Ajoutez votre JTable à un JScrollPane
             panel.add(scrollPane); // Ajoutez le JScrollPane au panel
             conn.close();
@@ -267,10 +270,194 @@ public class Reclamation {
             System.out.println(d);
         }
 
-
-
         frame.add(panel);
         frame.setVisible(true);
+    }
+
+    public static void clients() {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Ajouter un client");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(400, 200);
+            ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
+            frame.setIconImage(img.getImage());
+
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(5, 10, 5, 10);
+
+            JLabel nameLabel = new JLabel("Nom:");
+            JTextField nameField = new JTextField(15);
+
+            JLabel prenomLabel = new JLabel("Prénom :");
+            JTextField prenomField = new JTextField(15);
+
+            JLabel telLabel = new JLabel("Téléphone :");
+            JTextField telArea = new JTextField(15);
+
+            JButton clientsList = new JButton("Liste des clients");
+            clientsList.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    voirClients();
+                }
+            });
+
+            JButton submitButton = new JButton("Soumettre");
+            submitButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String clientName = nameField.getText();
+                    String telephone = telArea.getText();
+                    String clientPrename = prenomField.getText();
+                    try {
+                        // étape 1: charger la classe de driver
+                        Class.forName("com.mysql.jdbc.Driver");
+
+                        // étape 2: créer l'objet de connexion
+                        Connection conn = DriverManager.getConnection(
+                                "jdbc:mysql://localhost:3308/sav?characterEncoding=UTF-8&useConfigs=maxPerformance",
+                                "root", "");
+
+                        // étape 3: créer l'objet statement
+                        Statement stmt = conn.createStatement();
+                        ResultSet rs = stmt.executeQuery("SELECT ID_Client FROM clients WHERE Nom LIKE '" + clientName
+                                + "' AND Prenom LIKE '" + clientPrename + "'");
+
+                        if (!rs.isBeforeFirst()) {
+                            String sql = "INSERT INTO clients (Nom, Prenom, Telephone) VALUES (?, ?, ?)";
+                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                            pstmt.setString(1, clientName);
+                            pstmt.setString(2, clientPrename);
+                            pstmt.setString(3, telephone);
+                            pstmt.executeUpdate();
+                        } else if (rs.isBeforeFirst()) {
+                            JOptionPane.showMessageDialog(frame, "Ce client existe déjà !");
+                            return;
+
+                        }
+                        // étape 5: fermez l'objet de connexion
+                        conn.close();
+                    } catch (Exception d) {
+                        System.out.println(d);
+                    }
+                    JOptionPane.showMessageDialog(frame, "Demande soumise avec succès!");
+                    frame.dispose();
+                }
+            });
+
+            JButton backButton = new JButton("Retour");
+            backButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    frame.dispose();
+                }
+            });
+
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(nameLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(nameField, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(prenomLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(prenomField, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 3;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(telLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 3;
+            panel.add(telArea, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 4;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(submitButton, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 4;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(backButton, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 5;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(clientsList, gbc);
+            frame.getContentPane().add(panel);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
+
+    public static void voirClients() {
+        class CustomCellEditor extends DefaultCellEditor {
+            public CustomCellEditor(JCheckBox checkBox) {
+                super(checkBox);
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                    int column) {
+                if (column == 0 || column == 1 || column == 2 || column == 3) { // Remplacez "yourNonEditableColumnIndex" par l'indice
+                                                                 // de la colonne que vous ne souhaitez pas éditer.
+                    return null; // Retourne null pour les cellules que vous ne souhaitez pas éditer.
+                } else {
+                    return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                }
+            }
+        }
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Liste des clients");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(500, 500);
+            ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
+            frame.setIconImage(img.getImage());
+            String columns[] = { "ID_Client", "Nom", "Prenom", "Telephone" };
+            DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+            JTable jt = new JTable(tableModel);
+            JPanel panel = new JPanel();
+            try {
+                // étape 1: charger la classe de driver
+                Class.forName("com.mysql.jdbc.Driver");
+
+                // étape 2: créer l'objet de connexion
+                Connection conn = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3308/sav?characterEncoding=UTF-8&useConfigs=maxPerformance",
+                        "root", "");
+
+                // étape 3: créer l'objet statement
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT * FROM clients");
+                tableModel.setRowCount(0);
+                while (rs.next()) {
+                    String id = rs.getString("ID_Client");
+                    String nom = rs.getString("Nom");
+                    String prenom = rs.getString("Prenom");
+                    String telephone = rs.getString("Telephone");
+                    tableModel.addRow(new Object[] { id, nom, prenom, telephone });
+                }
+                TableModelHolder.tableModel2 = tableModel;
+                jt.getColumnModel().getColumn(1).setCellEditor(new CustomCellEditor(new JCheckBox()));
+                jt.getColumnModel().getColumn(2).setCellEditor(new CustomCellEditor(new JCheckBox()));
+                jt.getColumnModel().getColumn(0).setCellEditor(new CustomCellEditor(new JCheckBox()));
+                jt.getColumnModel().getColumn(3).setCellEditor(new CustomCellEditor(new JCheckBox()));
+                JScrollPane scrollPane = new JScrollPane(jt); // Ajoutez votre JTable à un JScrollPane
+                panel.add(scrollPane); // Ajoutez le JScrollPane au panel
+                conn.close();
+            } catch (Exception d) {
+                System.out.println(d);
+            }
+            frame.getContentPane().add(panel);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+
     }
 
 }

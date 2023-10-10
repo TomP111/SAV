@@ -66,6 +66,12 @@ public class SAVManagerApp {
             }
         });
 
+        addClientButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                Reclamation.clients();
+            }
+        });
+
         // Ajouter des composants à la fenêtre principale
         frame.add(logoLabel, BorderLayout.NORTH);
         frame.add(optionsPanel, BorderLayout.SOUTH);
