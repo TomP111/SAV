@@ -18,7 +18,7 @@ public class SAVManagerApp {
         // Créer la fenêtre principale
         JFrame frame = new JFrame("Gestionnaire SAV");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(750, 400);
         frame.setLayout(new BorderLayout());
 
         // Ajouter un logo
