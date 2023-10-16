@@ -116,6 +116,9 @@ class ButtonEditor extends DefaultCellEditor {
         } else {
         }
       } else if (label == "Modifier") {
+        Reclamation.editTicket(idticket);
+        DefaultTableModel model = TableModelHolder.tableModel2;
+        model.fireTableDataChanged();
       }
 
     }

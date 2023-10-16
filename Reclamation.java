@@ -460,4 +460,153 @@ public class Reclamation {
 
     }
 
+
+
+    public static void editTicket(String arg){
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Modifier le ticket n°" + arg);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(400, 200);
+            ImageIcon img = new ImageIcon("C:/Users/jackt/Desktop/com/app/app/logo.png");
+            frame.setIconImage(img.getImage());
+
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(5, 10, 5, 10);
+
+            JLabel nameLabel = new JLabel("Nom du client :");
+            JTextField nameField = new JTextField(15);
+
+            JLabel prenomLabel = new JLabel("Prénom :");
+            JTextField prenomField = new JTextField(15);
+
+            JLabel issueLabel = new JLabel("Description :");
+            JTextArea issueArea = new JTextArea(8, 8);
+            issueArea.setWrapStyleWord(true);
+            issueArea.setLineWrap(true);
+            issueArea.setEditable(true);
+            JScrollPane scrollPane = new JScrollPane(issueArea);
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+            JLabel stateLabel = new JLabel("Etat :");
+            String[] etatOptions = { "Nouveau", "En cours", "Fermé" };
+            JComboBox<String> statebox = new JComboBox<>(etatOptions);
+
+            JButton submitButton = new JButton("Soumettre");
+            submitButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String clientName = nameField.getText();
+                    String issue = issueArea.getText();
+                    String clientPrename = prenomField.getText();
+                    String idclient = "";
+                    DateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    Date date = new Date();
+                    String selectedState = (String) statebox.getSelectedItem();
+
+                    try {
+                        // étape 1: charger la classe de driver
+                        Class.forName("com.mysql.jdbc.Driver");
+
+                        // étape 2: créer l'objet de connexion
+                        Connection conn = DriverManager.getConnection(
+                                "jdbc:mysql://localhost:3308/sav?characterEncoding=UTF-8&useConfigs=maxPerformance",
+                                "root", "");
+
+                        // étape 3: créer l'objet statement
+                        Statement stmt = conn.createStatement();
+                        ResultSet rs = stmt.executeQuery("SELECT ID_Client FROM clients WHERE Nom LIKE '" + clientName
+                                + "' AND Prenom LIKE '" + clientPrename + "'");
+
+                        while (rs.next()) {
+                            idclient = rs.getString("ID_Client");
+                        }
+
+                        // étape 5: fermez l'objet de connexion
+                        conn.close();
+                    } catch (Exception d) {
+                        System.out.println(d);
+                    }
+
+                    if (idclient.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Aucun client " +clientName + " " + clientPrename + "n'a été trouvé");
+                    } else {
+                        try {
+                            // étape 1: charger la classe de driver
+                            Class.forName("com.mysql.jdbc.Driver");
+
+                            // étape 2: créer l'objet de connexion
+                            Connection conn = DriverManager.getConnection(
+                                    "jdbc:mysql://localhost:3308/sav?characterEncoding=UTF-8&useConfigs=maxPerformance",
+                                    "root", "");
+                            String sql = "UPDATE problemes SET ID_Client = '"+ idclient +"', Description = '"+issue+"', Statut = '"+selectedState+"', Date = '"+ new Timestamp(date.getTime())+"' WHERE ID_Ticket = " + arg;
+                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                            pstmt.executeUpdate();
+
+                            // étape 5: fermez l'objet de connexion
+                            conn.close();
+                        } catch (Exception d) {
+                            System.out.println(d);
+                        }
+
+                        JOptionPane.showMessageDialog(frame, "Demande soumise avec succès!");
+                        frame.dispose();
+                    }
+                }
+            });
+            JButton backButton = new JButton("Retour");
+            backButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    frame.dispose();
+                }
+            });
+
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(nameLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(nameField, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(prenomLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(prenomField, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(stateLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 2;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(statebox, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 3;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(issueLabel, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 3;
+            panel.add(scrollPane, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 4;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(submitButton, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 4;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            panel.add(backButton, gbc);
+            frame.getContentPane().add(panel);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+
+    }
+
 }
